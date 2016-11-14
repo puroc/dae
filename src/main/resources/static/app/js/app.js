@@ -10,3 +10,19 @@ dae.config(['$routeProvider',function($routeProvider) {
 	})
 }]);
 
+dae.directive("inheader",function(){
+	return {
+		restrict:'E',
+        templateUrl:'tpls/interpreter_header.html',
+		replace:true
+	}
+});
+
+dae.directive("inbody",function(){
+    return {
+        restrict:'E',
+        templateUrl:'tpls/interpreter_body.html',
+        replace:true
+    }
+});
+
