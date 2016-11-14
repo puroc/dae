@@ -6,7 +6,7 @@ dae.config(['$routeProvider',function($routeProvider) {
 	}).when('/interpreter', {
 		templateUrl:'tpls/interpreter.html'
 	}).otherwise({
-		redirectTo: '/flow'
+		redirectTo: '/interpreter'
 	})
 }]);
 
