@@ -7,10 +7,12 @@ crtl.controller('InterpreterCtrl',function ($scope) {
 		$scope.area.push({a:1});
 	};
 	$scope.deletePanel=function(index){
-		// console.log(index);
 		$scope.area.splice(index,1);
 	};
-	$scope.showCode=function(){
-		$scope.code = !$scope.code;
+	$scope.switchCode=function(index){
+		$scope.area[index].code=!$scope.area[index].code
 	};
+	$scope.isCodeShow=function(index){
+		return $scope.area[index].code;
+	}
 });
