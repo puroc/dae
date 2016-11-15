@@ -1,4 +1,4 @@
-var dae = angular.module('dae', ['ngRoute','crtl']);
+var dae = angular.module('dae', ['ngRoute','ctrl']);
 
 dae.config(['$routeProvider',function($routeProvider) {
 	$routeProvider.when('/flow', {
