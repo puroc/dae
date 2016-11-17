@@ -5,70 +5,72 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
 
     $scope.paragraphId = "";
 
-    // $scope.paragraph.index = 0;
-
     $scope.paragraphs = [];
 
-    $scope.code = {
-        content: null,
-        init: {
-            "title": "Paragraph insert revised5555",
-            "text": "%spark\nprintln(\"Paragraph insert revised123\")",
-            "index": 0
+    $scope.paragraph={
+        id:null,
+        index:null,
+        input:{
+            content:null,
+            show:true
+        },
+        output:{
+            content:null,
+            show:true
         }
     };
 
-    $scope.result = {content: null};
-
-    var obj = {showCode:true};
-
-
     //切换隐藏/显示代码区域
     $scope.switchCode = function (index) {
-        $scope.paragraphs[index].showCode = !$scope.paragraphs[index].showCode
+        $scope.paragraphs[index].input.show = !$scope.paragraphs[index].input.show;
     };
 
     //代码区域是否显示
     $scope.isCodeShow = function (index) {
-        return $scope.paragraphs[index].showCode;
+        return $scope.paragraphs[index].input.show;
     };
 
     //添加程序
     $scope.addParagraph = function () {
-        var o = angular.copy(obj);
-        $scope.paragraphs.push(o);
+        var o = angular.copy($scope.paragraph);
         $http({
             method: "post",
             url: "rest/api/notebook/" + $scope.notebookId + "/paragraph",
-            data: $scope.code.init
+            data: $scope.paragraph.input.content
         }).success(function (data, status, config, headers) {
             o.id= data.body;
+            $scope.paragraphs.push(o);
         }).error(function (data, status, config, headers) {
-            alert("addParagraph failed,status:" + status);
+            alert("addParagraph failed");
         });
     };
 
 
     //删除程序
     $scope.deleteParagraph = function (index) {
-        $scope.paragraphs.splice(index, 1);
         $http({
             method: "delete",
-            url: "rest/api/notebook/" + $scope.notebookId + "/paragraph/" + $scope.paragraphs[index]
+            url: "rest/api/notebook/" + $scope.notebookId + "/paragraph/" + $scope.paragraphs[index].id
         }).success(function (data, status, config, headers) {
-            alert("success");
+            alert("deleteParagraph success");
+            $scope.paragraphs.splice(index, 1);
         }).error(function (data, status, config, headers) {
-            alert("deleteParagraph failed,status:" + status);
+            alert("deleteParagraph failed");
         });
     };
 
 
     // 运行程序
-    $scope.runParagraph = function () {
+    $scope.runParagraph = function (index) {
         console.log($scope.code.content);
-        $http.post("rest/api/notebook/job/" + $scope.notebookId + "/" + $scope.paragraphId).then(function (result) {
+        var para = $scope.paragraphs[index];
+        $http({
+            method:"post",
+            url:"rest/api/notebook/job/" + $scope.notebookId + "/" + para.id,
+        }).success(function(data, status, config, headers){
             console.log(result);
-            $scope.result.content = result.data.body[0].name;
+        }).error(function (data, status, config, headers) {
+            alert("runParagraph failed");
         });
     };
     
@@ -78,23 +80,38 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
             method:"get",
             url:"rest/api/notebook/job/"+ $scope.notebookId
         }).success(function(data, status, config, headers){
-            var o = angular.copy(obj);
-            // var o ={showCode:true};
+            //清空数组
+            $scope.paragraphs=[];
+            //将返回的paragraph添加到数组中
             for(var i=0;i<data.body.length;i++){
-                o.id=data.body[i].id;
-                $scope.paragraphs.push(o);
+                var p = angular.copy($scope.paragraph);
+                p.id=data.body[i].id;
+                $scope.paragraphs.push(p);
             }
         }).error(function(data, status, config, headers) {
-            alert("failed,status:" + status);
+            alert("getAllParagraphInfo failed");
         });
     };
 
     // 查询程序运行结果
-    $scope.getParagraphInfo = function () {
-        $http.get("rest/api/notebook/" + $scope.notebookId + "/paragraph/" + $scope.paragraphId).then(function (result) {
-            console.log(result);
-            $scope.result.content = result.data.body.result.msg;
+    $scope.getParagraphInfo = function (index) {
+        var para = $scope.paragraphs[index];
+        $http({
+            method:"get",
+            url:"rest/api/notebook/" + $scope.notebookId + "/paragraph/" + para.id
+        }).success(function(data, status, config, headers){
+            console.log(data);
+            para.output.content = data.body.result.msg;
         })
+        .error(function(data, status, config, headers) {
+            alert("getParagraphInfo failed");
+        });;
+    };
+
+    //运行程序并查看结果
+    $scope.runAndGetParagraph=function(index){
+        $scope.runParagraph(index);
+        $scope.getParagraphInfo(index);
     };
 
 //初始化加载所有的程序

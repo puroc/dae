@@ -5,7 +5,7 @@
             <div class="col-md-3">
                 <div class="btn-group btn-group-justified">
                     <div class="btn-group">
-                        <button type="button" class="btn btn-default" ng-click="getParagraphInfo()"><span
+                        <button type="button" class="btn btn-default" ng-click="getParagraphInfo($index)"><span
                                 class="glyphicon glyphicon-play"></span>
                         </button>
                     </div>
@@ -30,12 +30,12 @@
         <form role="form">
             <div class="form-group">
                 <label>代码区域</label>
-                <textarea id="input" class="form-control" rows="10" ng-model="code.content"></textarea>
+                <textarea id="input" class="form-control" rows="10" ng-model="paragraphs[$index].input.content"></textarea>
             </div>
         </form>
     </div>
     <div class="panel-body">
         <label>输出区域</label>
-        <textarea id="output" class="form-control" rows="10" ng-model="result.content"></textarea>
+        <textarea id="output" class="form-control" rows="10" ng-model="paragraphs[$index].output.content"></textarea>
     </div>
 </div>
