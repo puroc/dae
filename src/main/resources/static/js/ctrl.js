@@ -1,6 +1,7 @@
-var crtl = angular.module('ctrl', []);
+var crtl = angular.module('ctrl', ['InterpreterSerivce']);
 
-crtl.controller('InterpreterCtrl', function ($scope, $http) {
+crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($scope, $http,notyService){
+// crtl.controller('InterpreterCtrl', function ($scope, $http) {
     $scope.notebookId = "2C2CVMVRC";
 
     $scope.paragraphId = "";
@@ -40,8 +41,10 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
         }).success(function (data, status, config, headers) {
             o.id= data.body;
             $scope.paragraphs.push(o);
+            notyService.notify("添加成功","success");
         }).error(function (data, status, config, headers) {
             alert("addParagraph failed");
+            notyService.notify("添加失败","error");
         });
     };
 
@@ -52,10 +55,10 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
             method: "delete",
             url: "rest/api/notebook/" + $scope.notebookId + "/paragraph/" + $scope.paragraphs[index].id
         }).success(function (data, status, config, headers) {
-            alert("deleteParagraph success");
             $scope.paragraphs.splice(index, 1);
+            notyService.notify("删除成功","success");
         }).error(function (data, status, config, headers) {
-            alert("deleteParagraph failed");
+            notyService.notify("删除失败","error");
         });
     };
 
@@ -68,9 +71,9 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
             method:"post",
             url:"rest/api/notebook/job/" + $scope.notebookId + "/" + para.id,
         }).success(function(data, status, config, headers){
-            console.log(result);
+            notyService.notify("运行成功","success");
         }).error(function (data, status, config, headers) {
-            alert("runParagraph failed");
+            notyService.notify("运行失败","error");
         });
     };
     
@@ -89,7 +92,7 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
                 $scope.paragraphs.push(p);
             }
         }).error(function(data, status, config, headers) {
-            alert("getAllParagraphInfo failed");
+            notyService.notify("获取程序失败","error");
         });
     };
 
@@ -100,11 +103,11 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
             method:"get",
             url:"rest/api/notebook/" + $scope.notebookId + "/paragraph/" + para.id
         }).success(function(data, status, config, headers){
-            console.log(data);
             para.output.content = data.body.result.msg;
+            notyService.notify("获取运行结果成功","success");
         })
         .error(function(data, status, config, headers) {
-            alert("getParagraphInfo failed");
+            notyService.notify("获取运行结果失败","error");
         });;
     };
 
@@ -116,4 +119,7 @@ crtl.controller('InterpreterCtrl', function ($scope, $http) {
 
 //初始化加载所有的程序
 $scope.getAllParagraphInfo();
-});
+
+}
+
+]);
