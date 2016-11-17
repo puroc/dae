@@ -1,8 +1,7 @@
 var crtl = angular.module('ctrl', ['InterpreterSerivce']);
 
 crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($scope, $http,notyService){
-// crtl.controller('InterpreterCtrl', function ($scope, $http) {
-    $scope.notebookId = "2C2CVMVRC";
+    $scope.notebookId = "2C3SGDXBP";
 
     $scope.paragraphId = "";
 
@@ -12,14 +11,17 @@ crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($sc
         id:null,
         index:null,
         input:{
-            content:null,
-            show:true
-        },
-        output:{
-            content:null,
-            show:true
-        }
-    };
+            content:{
+              "title": "test paragraph",
+              "text": "println(\"hello world\")"
+          },
+          show:true
+      },
+      output:{
+        content:{},
+        show:true
+    }
+};
 
     //切换隐藏/显示代码区域
     $scope.switchCode = function (index) {
@@ -65,11 +67,11 @@ crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($sc
 
     // 运行程序
     $scope.runParagraph = function (index) {
-        console.log($scope.code.content);
         var para = $scope.paragraphs[index];
         $http({
             method:"post",
             url:"rest/api/notebook/job/" + $scope.notebookId + "/" + para.id,
+            data: para.input.content
         }).success(function(data, status, config, headers){
             notyService.notify("运行成功","success");
         }).error(function (data, status, config, headers) {
@@ -78,18 +80,23 @@ crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($sc
     };
     
     //获取所有的程序
-    $scope.getAllParagraphInfo=function () {
+    $scope.getAllParagraphInfo=function (onload) {
         $http({
             method:"get",
-            url:"rest/api/notebook/job/"+ $scope.notebookId
+            url:"rest/api/notebook/"+ $scope.notebookId
         }).success(function(data, status, config, headers){
             //清空数组
             $scope.paragraphs=[];
             //将返回的paragraph添加到数组中
-            for(var i=0;i<data.body.length;i++){
+            for(var i=0;i<data.body.paragraphs.length;i++){
                 var p = angular.copy($scope.paragraph);
-                p.id=data.body[i].id;
+                var para = data.body.paragraphs[i];
+                p.id=para.id;
+                p.input.content=para.text;
                 $scope.paragraphs.push(p);
+            }
+            if(!onload){
+                notyService.notify("获取程序成功","success");
             }
         }).error(function(data, status, config, headers) {
             notyService.notify("获取程序失败","error");
@@ -114,11 +121,15 @@ crtl.controller('InterpreterCtrl', ['$scope','$http','notyService', function($sc
     //运行程序并查看结果
     $scope.runAndGetParagraph=function(index){
         $scope.runParagraph(index);
-        $scope.getParagraphInfo(index);
+        // setTimeout(function(){
+        //     alert("gooooo");
+        //     $scope.getParagraphInfo(index);
+        // },10000);
+        
     };
 
 //初始化加载所有的程序
-$scope.getAllParagraphInfo();
+$scope.getAllParagraphInfo(true);
 
 }
 

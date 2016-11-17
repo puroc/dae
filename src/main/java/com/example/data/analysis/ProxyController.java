@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -72,6 +74,7 @@ public class ProxyController {
             post.setURI(uri);
 //            post.addHeader("Content-type","application/json; charset=utf-8");
 //            post.setHeader("Accept", "application/json");
+
             post.setEntity(new StringEntity(body, Charset.forName("UTF-8")));
             result = getResult(post);
         } catch (Throwable e) {
@@ -151,5 +154,13 @@ public class ProxyController {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static void main(String[] args) {
+        try {
+            System.out.println(URLEncoder.encode("%angular <h3>Hello {{name}}</h3>","UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }
